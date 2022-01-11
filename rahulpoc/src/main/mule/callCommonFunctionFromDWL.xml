@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="callCommonFunctionFromDWLFlow" doc:id="47966291-2f80-4793-9898-2a6bb459e05f" >
+		<http:listener doc:name="Listener" doc:id="4c7bf4aa-2911-4279-be54-88f2489916f8" config-ref="HTTP_Listener_config" path="/calldwl"/>
+		<set-payload value='#[a:"rahul"]' doc:name="Set Payload" doc:id="ee5132d8-6b07-4f9a-b487-750455e66d56" />
+		<ee:transform doc:name="Transform Message" doc:id="e54e4b7b-ff6c-409e-bba6-9fc1db53b0f8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var b="singh"
+fun up(i)=upper(i)
+
+---
+output1:up(b)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="a738a4ed-6776-4889-ad0e-72e55d941437" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import upperCustomFunction 
+output application/json
+---
+upperCustomFunction::UPCase("rahul")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

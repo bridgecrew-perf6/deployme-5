@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xml-module="http://www.mulesoft.org/schema/mule/xml-module" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/xml-module http://www.mulesoft.org/schema/mule/xml-module/current/mule-xml-module.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="9bc43d01-b341-4b6c-9439-1ce883b4def5" />
+	<flow name="sendOrderDropRequestToTopic" doc:id="ea98d1f3-54a9-4b60-b36c-f84af627b769" >
+		<http:listener doc:name="Listener" doc:id="9beb69b0-8db9-4221-b3d0-782d72c790e4" config-ref="HTTP_Listener_config" path="/orderDrop"/>
+		<logger level="INFO" doc:name="Logger" doc:id="200ae72d-c287-4229-a1c7-604028c6c001" message="Reuest Recieved from OB #[payload]"/>
+		<flow-ref doc:name="schema validation" doc:id="93ed8184-1b14-450f-bde6-1bf2a25497c1" name="schemaValidate"/>
+		<jms:publish doc:name="Publish" doc:id="8b63614b-135e-47cb-aab4-40f34d17177e" config-ref="JMS_Config" destination="orderDrop" destinationType="TOPIC" persistentDelivery="true" sendCorrelationId="ALWAYS" timeToLive="5" timeToLiveUnit="HOURS"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5e2faa23-5e2b-4fab-aaa7-8bdbf5250d96" message="order drop request is sent to sunbeam and loms queue"/>
+		<set-payload value="order drop request is sent to sunbeam and loms queue" doc:name="Set Payload" doc:id="78dfaa9d-3217-42db-bd8d-7a9fd3d0baa0" />
+	</flow>
+	<sub-flow name="schemaValidate" doc:id="62b2ec7b-c13b-4a21-b79d-932303a33e3c" >
+		<validation:is-not-blank-string doc:name="check if order number Is blank then throw exception" doc:id="a319ea1c-d26e-410c-a83d-7c09d63cfd4d" value="#[payload.orderDropRequest.orderNumber]" message="Please provide order number"/>
+		<validation:is-not-blank-string doc:name="check if customerName Is blank string then throw exception" doc:id="49ee15b0-a46e-4954-bcbf-3797a5db08e5" value="#[payload.orderDropRequest.customerName]" message="Please provide the customer name"/>
+	</sub-flow>
+	<flow name="DropMessageToLOMS" doc:id="fcdfb378-b562-4ce8-9b49-ccf9f9060627" >
+		<jms:listener doc:name="On New Message" doc:id="b5f428de-fc22-4cbb-90c0-6e2e1a69f37d" config-ref="JMS_Config" destination="orderDrop">
+			<jms:consumer-type >
+				<jms:topic-consumer />
+			</jms:consumer-type>
+			<jms:response persistentDelivery="true" timeToLive="5" timeToLiveUnit="HOURS" />
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="9fc6b172-9d60-4630-8c2c-b5646af54605" message="message recieved from publish service LOMS REquest #[payload]"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="0c34abcc-e94e-4b45-a9f1-bbc7d3d22ecf" variableName="actualPayloadVar"/>
+		<flow-ref doc:name="Flow Reference" doc:id="777ae1ce-0863-49e6-8cd5-292d78538fad" name="LOMSProcessingLogic"/>
+		<logger level="INFO" doc:name="Logger" doc:id="fe75d346-bee5-4db8-9099-e61d75378435" message="#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="37d7c9ea-3d05-4ab0-aade-bccd9b80cca7" type="ANY">
+				<os:store doc:name="Store" doc:id="26ad7ef9-3815-44aa-ad5a-8bc9acb539cf" key="#[correlationId]" objectStore="Object_store_LOMSQueueMessage">
+					<os:value ><![CDATA[#[vars.actualPayloadVar]]]></os:value>
+				</os:store>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<sub-flow name="LOMSProcessingLogic" doc:id="e33d99be-8e29-4a3a-9ea5-7f1fdd578a59" >
+		<set-variable value='#[now()++"lomsFile"]' doc:name="Set Variable" doc:id="4222bc33-c030-41b2-8896-c1d0b1d88e92" variableName="fileName" />
+		<ee:transform doc:name="Transform Message" doc:id="48976dcf-3daa-46de-aa7d-1819b1c12c94" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/flatfile  schemaPath = "orderDropFFSchema.ffd"
+---
+payload.sku map {
+	
+	orderID:payload.orderDropRequest.orderNumber,
+	customerName:payload.orderDropRequest.customerName,
+	address:payload.orderDropRequest.address,
+	itemName:$.itemName,
+	quantity:$.quantity as Number
+				
+				}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="62968ab8-b354-4972-be6f-8fbc79ffe993" message="output payload #[payload]"/>
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="9768ba8a-a9df-4833-9c60-d99faa7a3c57" millisBetweenRetries="30000">
+			<file:write doc:name="Write" doc:id="c43f77bc-95ea-4fee-95d4-178cd4e21de8" config-ref="File_Config" path='#["/Users/rahul/Desktop/MulesoftInterview/rahulPOCInputFiles/lomsFiles/" ++ vars.fileName]' />
+		</until-successful>
+	</sub-flow>
+	<flow name="inboundInterfaceOBtoLOMSandSunbeamFlow" doc:id="23c42690-9c3a-43d5-8e22-08e2740cdc82" >
+		<http:listener doc:name="Listener" doc:id="8aefec27-e252-4553-ab5b-92a030c1cfe6" config-ref="HTTP_Listener_config" path="/reprocess"/>
+		<os:retrieve-all doc:name="Retrieve all" doc:id="00308e50-cb90-451a-8e17-485638a8c054" objectStore="Object_store_LOMSQueueMessage"/>
+		<ee:transform doc:name="Transform Message" doc:id="cbbf239d-3c1d-4634-b242-26ded15d9b0d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

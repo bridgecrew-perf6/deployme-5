@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<flow name="databaseNotificationFlow" doc:id="2bfef588-2f4d-46dc-bdbf-967fe9f052ce" >
+		<db:listener doc:name="On Table Row-Test 1 DB" doc:id="59ef315e-11c1-4ce1-bfa4-7c0ef06a074f" config-ref="Database_Config" table="test1" watermarkColumn="id">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</db:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="1db256e1-94ce-48d1-b359-389779271edd" message="recieved payload #[payload]"/>
+		<os:retrieve-all doc:name="Retrieve all" doc:id="09b7353e-c41d-4fd1-baa5-7452b37486eb" objectStore="Object_store_watermarkid" />
+		<os:store doc:name="Store" doc:id="102b2ab0-8920-4ce7-a7a2-6a7beea085e1" key="#[payload.id]" objectStore="Object_store_watermarkid" failIfPresent="true">
+			<os:value ><![CDATA[#[payload.id]]]></os:value>
+		</os:store>
+		<logger level="INFO" doc:name="Logger" doc:id="4be76498-c6c7-4a6e-bb72-a79062223185" message="#[payload]"/>
+	</flow>
+</mule>

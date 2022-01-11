@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:servicenow="http://www.mulesoft.org/schema/mule/servicenow" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/servicenow http://www.mulesoft.org/schema/mule/servicenow/current/mule-servicenow.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="jmsPublishFlow" doc:id="86258578-aef0-433a-aab3-ed5448115552" >
+		<http:listener doc:name="Listener" doc:id="b0a66d46-9e74-4548-b593-6e22a5bb1942" config-ref="HTTP_Listener_config" path="/jms"/>
+		<logger level="INFO" doc:name="Logger" doc:id="489016dc-b293-49af-8636-3bc7ee796af8" message="request recieved from http listener #[payload]"/>
+		<jms:publish-consume doc:name="Publish consume" doc:id="ec559a01-b4ce-4450-8029-d688d0732792" config-ref="JMS_Config" destination="addQueue" sendCorrelationId="AUTO">
+			<jms:message >
+				<jms:reply-to destination="replyQueue" />
+			</jms:message>
+			<jms:consume-configuration maximumWait="5" maximumWaitUnit="MINUTES" />
+		</jms:publish-consume>
+		<logger level="INFO" doc:name="Logger" doc:id="59443859-5141-4b18-ba8d-8f3446eef74e" message="response from jms reply #[payload]"/>
+	</flow>
+	<flow name="jmsReplyFlow" doc:id="80264804-02bd-4931-805a-87510c6c7ff5" >
+		<jms:listener doc:name="On New Message" doc:id="ef67ff34-3f39-48ab-a0f4-508118d908b8" config-ref="JMS_Config" destination="addQueue">
+			<jms:consumer-type >
+				<jms:topic-consumer />
+			</jms:consumer-type>
+			<jms:response persistentDelivery="true" timeToLive="5" timeToLiveUnit="HOURS" >
+				<jms:reply-to destination="replyQueue"/>
+			</jms:response>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="2d934ff9-f53d-4ba1-a577-87b4f2b81b81" message="message recieved from queue #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="634c7eb1-b4c6-4b84-a4f8-b3e7215246bc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+out:payload.a+payload.b]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f4833ecb-4ebe-4323-ad32-aaf77ed616cf" message="transform message output #[payload]"/>
+	</flow>
+</mule>

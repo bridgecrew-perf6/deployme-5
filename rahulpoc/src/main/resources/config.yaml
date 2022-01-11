@@ -1,0 +1,16 @@
+httplistener:
+  port: "8081"
+
+database:
+  url: "jdbc:postgresql://localhost:5432/postgres"
+  username: "postgres"
+  password: "idea62274"
+  driverClass: "org.postgresql.Driver"
+  
+salesforce:
+  username: "rahulkumarsingh@hcl.com"
+  password: "Newuser@2"
+  token: "tOsqYv5OIKzFkGAwA02mtziC"
+  
+oauthprovider:
+  ttl: "10"

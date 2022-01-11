@@ -1,0 +1,29 @@
+[
+    {
+        "first name":"rahul",
+        "last name":"singh",
+        "mobile number":"9873132787",
+        "city":"noida",
+        "state":"up",
+        "location":"sector-137",
+        "country":"india",
+        "Email":"Test1@gmail.com",
+        "source":"vendorManagement",
+        "brokerID":"vendor1",
+        "Zip Code":"201305"
+    },
+    {
+        "first name":"archna",
+        "last name":"singh",
+        "mobile number":"9873132788",
+        "city":"noida",
+        "state":"up",
+        "location":"sector-137",
+        "country":"india",
+        "Email":"Test2@gmail.com",
+        "source":"vendorManagement",
+        "brokerID":"vendor2",
+        "Zip Code":"201310"
+    }
+   
+]

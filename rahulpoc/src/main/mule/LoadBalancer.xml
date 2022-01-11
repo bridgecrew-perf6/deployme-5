@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="LoadBalancerFlow" doc:id="d6676df1-84ca-4354-96d3-54eae7ed20a6" >
+		<http:listener doc:name="Listener" doc:id="d6259628-5395-421a-9d69-c40ecd182de5" config-ref="HTTP_Listener_config" path="/load"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8ae19026-46e0-4284-b9f4-86b3063d59f2" message="Request Attributes Recieved From loadBalancer #[attributes]"/>
+		<set-payload value="Rahul is champ on local" doc:name="Set Payload" doc:id="3dd3c55d-f69a-4699-a5d0-e80074188b46" />
+	</flow>
+</mule>

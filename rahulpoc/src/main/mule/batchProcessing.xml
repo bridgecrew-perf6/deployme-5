@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="batchProcessingFlow" doc:id="c54202f1-94b6-4827-bdb9-1c1c9bac2f19" >
+		<http:listener doc:name="Listener" doc:id="3f6066c2-8303-48f2-a4a7-3e36f0f3da77" config-ref="HTTP_Listener_config" path="/batch"/>
+		<set-payload value='#[[1,2,3,4,"a",5,6,7,"b","c",8,9,10]]' doc:name="Set Payload" doc:id="09f3ac2f-2c7c-4892-b0be-29522a6ca12f" />
+		<logger level="INFO" doc:name="Logger" doc:id="b831c0f8-095f-4d00-8b85-acae3fc15f8a" message='payload recieved from http listener #[payload]'/>
+		<set-variable value='#[payload]' doc:name="preserve OriginalPayloadToPayload" doc:id="d94671e2-1e66-4482-b242-bccd241a8521" variableName="originalPayloadVar"/>
+		<set-variable value="" doc:name="Set Variable" doc:id="66c3794e-9305-4f85-af13-a0e1880cf6d1" variableName="outputPayload"/>
+		<batch:job jobName="batch_Job" doc:id="8d2762dc-f21a-48bb-9516-23e2ef3e97c3" maxFailedRecords="-1" blockSize="5">
+			<batch:process-records >
+				<batch:step name="Batch_Step_Process_All" doc:id="1d0ddaee-3415-424d-bb18-bccc48141530" acceptPolicy="ALL">
+					<ee:transform doc:name="Transform Message" doc:id="090f7aa2-672a-48f3-8a48-1bfe5dfa38c1" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"output":{
+	out:payload *2
+	}
+]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<set-variable value='#[payload."output"]' doc:name="Set Variable" doc:id="a2525dea-13a2-4b9f-ace1-98a9326d5658" variableName="outputPayload"/>
+					<logger level="INFO" doc:name="Logger" doc:id="91fd74cc-f60e-4b42-a7d0-230282e9b2b6" message="outVariableInFirstBatchStep #[vars.outputPayload]"/>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="3877f740-721e-4e0e-af2d-638e33133fee" size="3">
+						<logger level="INFO" doc:name="Logger" doc:id="b3ad5b0e-677e-4546-8765-58b74a734f7e" message="log inside first batch step #[payload]" />
+					</batch:aggregator>
+				</batch:step>
+				<batch:step name="Batch_Step_Process_Failure" doc:id="e06b4749-032e-4110-b873-8a2c9e3d60a5" acceptPolicy="ONLY_FAILURES">
+					<set-payload value="#[payload]" doc:name="Set Payload" doc:id="a777a908-553a-4dfb-9e36-3bba7b9a410e" />
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="8d565b1a-baf5-4f84-a100-7a243f075347" size="2">
+						<logger level="INFO" doc:name="Logger" doc:id="7538e516-c84f-402f-8c61-6e11595ea25b" />
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="cc214d1b-d66e-48f0-96e3-048c52280222" message="outputPayload #[vars.outputPayload]" />
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>
