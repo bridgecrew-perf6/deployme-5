@@ -1,9 +1,0 @@
-form: FIXEDWIDTH
-id: 'orderDropFFSchema'
-name: 'orderDropFFSchema'
-values: 
-- { name: 'orderID', usage: M, type: String, length: 10 }
-- { name: 'customerName', usage: M, type: String, length: 20 }
-- { name: 'address', usage: M, type: String, length: 20 }
-- { name: 'itemName', usage: M, type: String, length: 20 }
-- { name: 'quantity', usage: M, type: Integer, length: 10 }
