@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="171d585a-addd-40dc-b37e-3870d7e12f92" >
+		<email:smtp-connection host="smtp.gmail.com" port="587" user="rahul.webmethod@gmail.com" password="Xavient@2" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<flow name="emailFlow" doc:id="9e9fe0c7-336e-46db-bfa1-aa6941e5c2b3" >
+		<http:listener doc:name="Listener" doc:id="dadbdc86-cf54-4522-ab02-63040974a241" config-ref="HTTP_Listener_config" path="/email"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b24d5d69-a899-4cca-9b29-c4886f483c1d" message="request recieved from listener #[payload]"/>
+		<email:send doc:name="Send" doc:id="6fffe03a-ff43-4238-bdd4-e0e0abf763a4" fromAddress="rahul.webmethod@gmail.com" subject="#[payload.subject]" config-ref="Email_SMTP">
+			<email:to-addresses >
+				<email:to-address value="archna.rajput19@gmail.com" />
+			</email:to-addresses>
+			<email:body contentType="application/json">
+				<email:content ><![CDATA[#[payload.body]]]></email:content>
+			</email:body>
+		</email:send>
+		<ee:transform doc:name="Transform Message" doc:id="7f56736c-fb93-402d-833f-3b69134a7f0b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e3a41566-be69-48f3-a11f-2005cd31a63f" message="#[payload]"/>
+	</flow>
+</mule>

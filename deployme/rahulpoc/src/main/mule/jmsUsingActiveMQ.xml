@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="jmsUsingActiveMQFlow" doc:id="61b3c7ee-af54-468b-bb63-b4d2ff9aaf82" >
+		<http:listener doc:name="Listener" doc:id="164aecac-4db6-446f-a71c-b668aec5aae1" config-ref="HTTP_Listener_config" path="/activeMQ"/>
+		<jms:publish-consume doc:name="Publish consume" doc:id="2d40a3cd-8ba9-4abc-9ad0-2d5acff6af35" destination="req" sendCorrelationId="ALWAYS" config-ref="JMS_Active_mq">
+			<jms:message >
+				<jms:reply-to destination="rep" />
+			</jms:message>
+			<jms:publish-configuration persistentDelivery="true" timeToLive="5" timeToLiveUnit="HOURS" />
+			<jms:consume-configuration maximumWait="14" maximumWaitUnit="SECONDS" />
+		</jms:publish-consume>
+	</flow>
+	<flow name="jmsUsingActiveMQFlow1" doc:id="1eb7d12b-3735-496b-9726-d8e332db28a8" >
+		<jms:listener doc:name="On New Message" doc:id="a61ebc37-362f-41ea-aa62-50a100f35fa3" config-ref="JMS_Active_mq" destination="req" ackMode="AUTO" numberOfConsumers="1">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+			<jms:response persistentDelivery="true" timeToLive="5" timeToLiveUnit="HOURS" >
+				<jms:reply-to destination="rep" />
+			</jms:response>
+		</jms:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="8734c628-7827-4d41-a488-ac00512de585" message="payload from subscribe #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="68def19f-d438-4784-bd45-a69bad72cbfb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+out:payload.a + payload.b]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,30 @@
+{
+  "Id": "f8c6f1200f614b9980e",
+  "OwnerId": "38ef334eb7a7499bb22",
+  "IsDeleted": true,
+  "Name": "Ali",
+  "CreatedDate": "2002-10-11T10:30:49Z",
+  "CreatedById": "1ba686d1e44745798ea",
+  "LastModifiedDate": "2015-06-15T09:07:19Z",
+  "LastModifiedById": "ff20bfc0b5474da2bd5",
+  "SystemModstamp": "2012-04-11T14:51:04Z",
+  "LastActivityDate": "2010-04-15",
+  "LastViewedDate": "2011-10-17T01:17:39Z",
+  "LastReferencedDate": "2005-02-25T04:31:02Z",
+  "LeadID__c": "ea4623d2ed744cae826",
+  "Name__c": "Allison",
+  "Address__c": "Second Ave 78",
+  "City__c": "San Francisco",
+  "State__c": "anim",
+  "PostalCode__c": "eiusmod",
+  "Country__c": "Ecuador",
+  "MobilePhone__c": "(235)-143-1438",
+  "Email__c": "Alda.Daviot@gmail.com",
+  "LeadSource__c": "quis",
+  "LeadStatus__c": "est,",
+  "brokerID__c": "fugit,",
+  "fieldsToNull": [
+    "dolor",
+    "amet,"
+  ]
+}

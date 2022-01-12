@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="securePropFlow" doc:id="d284f0c4-4ea1-4cdf-9212-5cdacb5bea8f" >
+		<http:listener doc:name="Listener" doc:id="7e62287c-6ee0-4d1b-9e4f-0c7cd08f0e29" config-ref="HTTP_Listener_config" path="/decrypt"/>
+		<set-payload value="#[p('secure::secureProp.token')]" doc:name="Set Payload" doc:id="d4af20a8-f183-44a6-991b-e4c407cfa85e" />
+	</flow>
+</mule>

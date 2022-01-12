@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<flow name="vmVirtualMachineConnectorFlow" doc:id="d3586592-513b-4744-9512-2e283881c014" >
+		<http:listener doc:name="Listener" doc:id="6a91f03b-39b5-4284-8070-9307daebcb57" config-ref="HTTP_Listener_config" path="/vm"/>
+		<logger level="INFO" doc:name="Logger" doc:id="6ddd7826-4637-484d-99f1-730a22d48f24" message="Recieved Request from HTTP #[payload]"/>
+		<set-variable value="parrent" doc:name="Set Variable" doc:id="b8d642e8-f442-4aab-85fe-b7ea49c7ea07" variableName="parrentVar"/>
+		<vm:publish-consume doc:name="Publish consume" doc:id="ceecba86-4cb9-44e8-b82c-d680ee5e30cd" config-ref="VM_Config" sendCorrelationId="ALWAYS" queueName="vmQueueRahul" timeout="10" timeoutUnit="MINUTES"/>
+		<logger level="INFO" doc:name="Logger" doc:id="820c9c27-802e-4de6-87fe-b70f5ef366b5" message="response recieved from child"/>
+	</flow>
+	<flow name="childservice" doc:id="d148c320-6b37-4084-8cd3-0eed2d15ae9c" >
+		<vm:listener doc:name="Listener" doc:id="ae7a795b-2c69-4ead-815b-3ade3a3d5d1b" config-ref="VM_Config" queueName="vmQueueRahul" timeoutUnit="MINUTES"/>
+		<logger level="INFO" doc:name="Logger" doc:id="72096ebc-698f-41f8-b9b6-1d692d4c08c6" message="Request recieved from parrent service #[payload]"/>
+		<set-payload value="response from child" doc:name="Set Payload" doc:id="c4926274-3363-46b8-8e7b-12110ba84165" />
+		<set-variable value="child" doc:name="Set Variable" doc:id="2664e6d0-c061-4407-8fae-149e88e489a9" variableName="childVar"/>
+	</flow>
+</mule>

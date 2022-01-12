@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:oauth2-provider="http://www.mulesoft.org/schema/mule/oauth2-provider"
+	xmlns:oauth="http://www.mulesoft.org/schema/mule/oauth"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/oauth http://www.mulesoft.org/schema/mule/oauth/current/mule-oauth.xsd
+http://www.mulesoft.org/schema/mule/oauth2-provider http://www.mulesoft.org/schema/mule/oauth2-provider/current/mule-oauth2-provider.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="createClient" doc:id="f0ca7a24-1f25-44a7-84ec-2d0694ceca46" >
+		<http:listener doc:name="Listener" doc:id="419a5fc0-5c99-436c-b79b-552aa6e5d28d" config-ref="HTTP_Listener_config" path="/createClient"/>
+		<oauth2-provider:create-client doc:name="Create client" doc:id="c6d72a0c-ef4e-49b2-bd63-2ae2f2b460bd" config-ref="OAuth2_Provider_Config" clientId="#[attributes.headers.client_id]" type="CONFIDENTIAL" secret="#[attributes.headers.client_secret]" clientName="#[attributes.headers.client_name]" authorizedGrantTypes='#[["CLIENT_CREDENTIALS"]]' failIfPresent="true"/>
+		<set-payload value="Client is created" doc:name="Set Payload" doc:id="ace373d1-6abf-4f61-b20e-30b81ce68db1" />
+	</flow>
+	<flow name="validateToken" doc:id="1cbc7d10-4619-4d25-bd61-38b96174a42b" >
+		<http:listener doc:name="Listener" doc:id="2af0e58e-a39f-42a7-9564-133d1dbb4587" config-ref="HTTP_Listener_config" path="/validateToken"/>
+		<oauth2-provider:validate-token doc:name="Validate token" doc:id="0fcc387e-6ba9-4054-a5f0-1f82cabda03b" config-ref="OAuth2_Provider_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="4c5e87a1-9ac5-4b2a-a1a1-49e6eab0bea5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="bd36da19-d605-4e3b-bc75-9567a1ecbb28" message="#[payload]"/>
+	</flow>
+	<flow name="additionAPIOAuth" doc:id="245a9d75-37ed-4658-b3c0-57303f6924fa" >
+		<http:listener doc:name="Listener" doc:id="aa1588da-727b-414c-b6f9-9f56ee062e38" config-ref="HTTP_Listener_config" path="/oauth"/>
+		<ee:transform doc:name="Transform Message" doc:id="d3abbef9-8152-4f75-9068-14e0297caf2e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+out:payload.a + payload.b]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="38292946-e642-4850-97ff-f2e7351cb7eb" message="Output is= #[payload]"/>
+	</flow>
+</mule>

@@ -1,0 +1,52 @@
+#%RAML 1.0
+types:
+  addAPIInput:
+    properties:
+      input:
+        properties:
+          a:
+            example: "2"
+            type: string
+            minLength: 1
+            maxLength: 2
+          b:
+            example: "5"
+            type: string
+            minLength: 1
+            maxLength: 2
+  addAPIOutput:
+    properties:
+      output:
+        properties:
+          sum:
+            example: "7"
+            type: string
+title: Add API
+mediaType:
+  - application/xml
+  - application/json
+version: "1.0"
+protocols:
+  - HTTP
+  - HTTPS
+/AddMe:
+  post:
+    queryParameters:
+      operation:
+        example: Example
+        type: string
+    headers:
+      client_id?:
+        example: Example
+        type: string
+      client_secret?:
+        example: Example
+        type: string
+    body:
+      application/json:
+        type: addAPIInput
+    responses:
+      "200":
+        body:
+          application/json:
+            type: addAPIOutput

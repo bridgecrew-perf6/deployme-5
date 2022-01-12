@@ -1,0 +1,28 @@
+{"orderDropRequest": {
+      "orderNumber": "1",
+      "customerName": "rahul",
+      "address":"Sector 137 Noida",
+"deliveryDate":"27-2-2022"
+    },
+    
+    "sku": [
+    {
+        "quantity":"1",
+        "itemName":"pencil"
+    },
+    {
+        "quantity":"2",
+        "itemName":"box"
+    },
+    {
+        "quantity":"3",
+        "itemName":"rubber"
+    },
+    {
+        "quantity":"4",
+        "itemName":"paper"
+    }
+    
+    ]
+   
+}

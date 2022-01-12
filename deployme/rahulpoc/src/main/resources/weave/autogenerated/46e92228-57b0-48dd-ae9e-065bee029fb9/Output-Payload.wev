@@ -1,0 +1,10 @@
+%dw 2.0
+
+type auto_46e92228_57b0_48dd_ae9e_065bee029fb9_Output_Payload = {
+  "output"?: {
+    sum?: String, 
+    _?: Any
+  }, 
+  _?: Any
+}
+
